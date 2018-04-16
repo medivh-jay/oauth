@@ -70,7 +70,7 @@ $oAuth->getCSRFToken();
 $config = [
     'appid' => '',
     'secret' => '',
-    'redirect_uri' => 'http://i.snqu.com/oauth/index.php?method=r',
+    'redirect_uri' => '回调地址',
     'response_type' => 'code',
     'scope' => 'snsapi_login'
 ];
