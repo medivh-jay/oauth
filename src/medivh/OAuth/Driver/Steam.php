@@ -19,6 +19,8 @@ class Steam implements OAuthInterface {
 
     protected $steamId = '';
 
+    protected $CSRFToken = '';
+
     public function getOtherAuthorizeInfo(): string {
         return '';
     }
@@ -28,10 +30,19 @@ class Steam implements OAuthInterface {
     }
 
     public function getAuthorizeConfig(): array {
+        $this->CSRFToken = uniqid();
+        $redirectUri = $this->getConfig('redirect_uri');
+        // steam对回调验证没有那么严格，所以还是决定在这里对配置的回调地址做修改添加state字段，用以回调时验证
+        if ( strpos($redirectUri, '?') > 1 ){
+            $redirectUri .= "&state={$this->CSRFToken}";
+        }else{
+            $redirectUri .= "?state={$this->CSRFToken}";
+        }
+
         return [
             'openid_ns' =>  "http://specs.openid.net/auth/2.0",
             'openid_mode' =>  "checkid_setup",
-            'openid_return_to' => $this->getConfig('redirect_uri'),
+            'openid_return_to' => $redirectUri,
             'openid_ns_sreg' => "http://openid.net/extensions/sreg/1.1",
             'openid_claimed_id' => "http://specs.openid.net/auth/2.0/identifier_select",
             'openid_identity' => "http://specs.openid.net/auth/2.0/identifier_select"
@@ -136,7 +147,7 @@ class Steam implements OAuthInterface {
     }
 
     public function getCSRFToken(): string {
-        return '';
+        return $this->CSRFToken;
     }
 
     public function getAccessTokenInfo(string $key = ''): string {

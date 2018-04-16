@@ -44,18 +44,18 @@ $oAuth->getAccessToken();
 
 ##### 获取用户信息
 ```php
-// 这个方法可以传入两个参数，openid和access_token 
-// 当服务器保存了用户的openid和access_token时，可以在用户登录时直接调用这个方法获取用户信息
+这个方法可以传入两个参数，openid和access_token 
+当服务器保存了用户的openid和access_token时，可以在用户登录时直接调用这个方法获取用户信息
 $oAuth->getUser();
 ```
 
-//也可以调用 getOAuth() 获取其他操作，但是完全不必这样
+也可以调用 getOAuth() 获取其他操作，但是完全不必这样
 ```php
 $oAuth->getOAuth();
 ```
 
-// 登录的生成地址会有一个state字段,QQ 会原样返回，当做csrf_token 验证字段，需要事先记录存入用户本地cookie
-// 需要自己存，这里不做cookie设置操作，提供获取方法，生成完登录地址的时候，可以同时调用该方法得到
+登录的生成地址会有一个state字段,QQ 会原样返回，当做csrf_token 验证字段，需要事先记录存入用户本地cookie
+需要自己存，这里不做cookie设置操作，提供获取方法，生成完登录地址的时候，可以同时调用该方法得到
 ```php
 $oAuth->getCSRFToken();
 ```
