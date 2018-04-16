@@ -1,5 +1,9 @@
 #### QQ ， 微信， 百度 三方网站登录
 
+```
+composer require medivh/oauth dev-master 直接下载
+```
+
 ##### QQ 登录
 
 ```php
