@@ -68,8 +68,8 @@ $oAuth->getCSRFToken();
 <?php
 
 $config = [
-    'appid' => 'wxcd5a7f5148d14c46',
-    'secret' => '83459c74239f9d7237285303ff6f6557',
+    'appid' => '',
+    'secret' => '',
     'redirect_uri' => 'http://i.snqu.com/oauth/index.php?method=r',
     'response_type' => 'code',
     'scope' => 'snsapi_login'
@@ -81,4 +81,29 @@ $oAuth = \medivh\OAuth\OAuth::register(new \medivh\OAuth\Driver\QQ, $config);
 
 $refreshToken = $oAuth->getOAuth()->getAccessTokenInfo('refresh_token'); // 这个值建议在获取access_token的时候直接获取并保存
 $oAuth->refreshToken($refreshToken);
+```
+
+##### 百度登录
+
+###### 百度登录跟微信QQ差不多，不过不需要调用太多东西
+
+```php
+
+<?php
+
+$config = [
+    'appid' => '',
+    'secret' => '',
+    'redirect_uri' => '跳转地址',
+    'display' => 'popop'
+];
+
+$oAuth = \medivh\OAuth\OAuth::register(new \medivh\OAuth\Driver\BaiDu, $config);
+
+// 这个方法在回调地址使用，用户登录过后，直接回调之后使用这个方法获取用户信息就好了
+var_dump($oAuth->getUser());
+
+//登录地址
+$uri = $oAuth->getAuthorizeURL();
+
 ```
