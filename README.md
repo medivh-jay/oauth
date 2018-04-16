@@ -107,3 +107,36 @@ var_dump($oAuth->getUser());
 $uri = $oAuth->getAuthorizeURL();
 
 ```
+
+##### STEAM登录
+
+###### Steam 官方提供的第三方登录使用的LightOpenID代码，所以Steam登录略有不同
+
+```php
+<?php
+
+
+require 'vendor/autoload.php';
+
+// steam
+
+$config = [
+    'appid' => '在steam申请的key',
+    'redirect_uri' => 'steam登录成功之后的回调地址'
+];
+
+$oAuth = \medivh\OAuth\OAuth::register(new \medivh\OAuth\Driver\Steam, $config);
+
+// 不需要调用其他方法，可能会报错
+
+// 获取用户信息
+
+// 还是调用该方法生成登录地址
+$oAuth->getAuthorizeURL();
+
+
+// Steam貌似没看到什么获取access_token的东西，所以Driver里没有配置
+// 这里如果调用该方法时，第二个参数一定要写点儿什么，否则会去调用获取access_token的方法
+// 第一个参数需要填写steamid，不填会根据回调返回的steamid去获取该steamid用户信息
+$oAuth->getUser('', 'xxx'); 
+```
