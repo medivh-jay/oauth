@@ -63,7 +63,7 @@ class OAuth {
 
     /**
      * 获取用户信息
-     * @param $openId 用户openid，当本地存有openid或者unionid时直接使用openid和access_token请求用户数据更快一点儿
+     * @param string$openId 用户openid，当本地存有openid或者unionid时直接使用openid和access_token请求用户数据更快一点儿
      * @return UserInfoInterface
      */
     public function getUser(string $openId = '', string $accessToken = ''):UserInfo {
@@ -109,7 +109,7 @@ class OAuth {
      * @param string $refreshToken
      * @return array
      */
-    public function refreshToken(string $refreshToken):array {
+    public function refreshToken(string $refreshToken):string {
         $response = $this->request(
             $this->getOAuth()->getRefreshTokenMethod(),
             $this->getOAuth()->getRefreshTokenUri(),
