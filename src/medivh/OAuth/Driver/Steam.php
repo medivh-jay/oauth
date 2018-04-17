@@ -43,12 +43,12 @@ class Steam implements OAuthInterface {
         }
 
         return [
-            'openid_ns' => "http://specs.openid.net/auth/2.0",
-            'openid_mode' => "checkid_setup",
+            'openid_ns' => 'http://specs.openid.net/auth/2.0',
+            'openid_mode' => 'checkid_setup',
             'openid_return_to' => $redirectUri,
-            'openid_ns_sreg' => "http://openid.net/extensions/sreg/1.1",
-            'openid_claimed_id' => "http://specs.openid.net/auth/2.0/identifier_select",
-            'openid_identity' => "http://specs.openid.net/auth/2.0/identifier_select"
+            'openid_ns_sreg' => 'http://openid.net/extensions/sreg/1.1',
+            'openid_claimed_id' => 'http://specs.openid.net/auth/2.0/identifier_select',
+            'openid_identity' => 'http://specs.openid.net/auth/2.0/identifier_select'
         ];
     }
 
@@ -104,7 +104,7 @@ class Steam implements OAuthInterface {
     private function getSteamId(): string {
         if (empty($this->steamId) && $this->getRequestParam('openid_identity') !== '') {
             $openIdIdentity = $this->getRequestParam('openid_identity');
-            $ptn = "/[^https|^http]?:\/\/steamcommunity\.com\/openid\/id\/(7[0-9]{15,25}+)$/";
+            $ptn = '/[^https|^http]?:\/\/steamcommunity\.com\/openid\/id\/(7[0-9]{15,25}+)$/';
             if (preg_match($ptn, $openIdIdentity, $matches)) {
                 $this->setOpenId($matches[1]);
             }

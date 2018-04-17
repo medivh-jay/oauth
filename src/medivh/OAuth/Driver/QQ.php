@@ -163,9 +163,9 @@ class QQ implements OAuthInterface {
             $resultContents = $response->getBody()->getContents();
 
             //--------检测错误是否发生
-            if(strpos($resultContents, "callback") !== false){
-                $leftParenthesis = strpos($resultContents, "(");
-                $rightParenthesis = strrpos($resultContents, ")");
+            if(strpos($resultContents, 'callback') !== false){
+                $leftParenthesis = strpos($resultContents, '(');
+                $rightParenthesis = strrpos($resultContents, ')');
                 $result = substr($resultContents, $leftParenthesis + 1, $rightParenthesis - $leftParenthesis -1);
 
                 $resultArr = json_decode($result, true);
