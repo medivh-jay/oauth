@@ -75,7 +75,7 @@ $config = [
     'scope' => 'snsapi_login'
 ];
 
-$oAuth = \medivh\OAuth\OAuth::register(new \medivh\OAuth\Driver\QQ, $config);
+$oAuth = \medivh\OAuth\OAuth::register(new \medivh\OAuth\Driver\WeChatQrCode, $config);
 
 // 这里微信还提供刷新access_token 的方法
 
