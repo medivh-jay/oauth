@@ -9,6 +9,7 @@
 namespace medivh\OAuth\Driver;
 
 
+use GuzzleHttp\Client;
 use medivh\OAuth\OAuthInterface;
 use medivh\OAuth\UserInfo\SteamUserInfo;
 use medivh\OAuth\UserInfo\UserInfo;
@@ -21,6 +22,8 @@ class Steam implements OAuthInterface {
 
     protected $CSRFToken = '';
 
+    protected $validateUri = 'https://steamcommunity.com/openid/login';
+
     public function getOtherAuthorizeInfo(): string {
         return '';
     }
@@ -32,16 +35,16 @@ class Steam implements OAuthInterface {
     public function getAuthorizeConfig(): array {
         $this->CSRFToken = uniqid();
         $redirectUri = $this->getConfig('redirect_uri');
-        // steam对回调验证没有那么严格，所以还是决定在这里对配置的回调地址做修改添加state字段，用以回调时验证
-        if ( strpos($redirectUri, '?') > 1 ){
+        // 这里会携带一个state字段，可以验证正确性，也可以不验证
+        if (strpos($redirectUri, '?') > 1) {
             $redirectUri .= "&state={$this->CSRFToken}";
-        }else{
+        } else {
             $redirectUri .= "?state={$this->CSRFToken}";
         }
 
         return [
-            'openid_ns' =>  "http://specs.openid.net/auth/2.0",
-            'openid_mode' =>  "checkid_setup",
+            'openid_ns' => "http://specs.openid.net/auth/2.0",
+            'openid_mode' => "checkid_setup",
             'openid_return_to' => $redirectUri,
             'openid_ns_sreg' => "http://openid.net/extensions/sreg/1.1",
             'openid_claimed_id' => "http://specs.openid.net/auth/2.0/identifier_select",
@@ -98,9 +101,9 @@ class Steam implements OAuthInterface {
         return 'http://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/';
     }
 
-    private function getSteamId():string {
-        if ( empty($this->steamId) && isset($_GET['openid_identity']) ){
-            $openIdIdentity = $_GET['openid_identity'];
+    private function getSteamId(): string {
+        if (empty($this->steamId) && $this->getRequestParam('openid_identity') !== '') {
+            $openIdIdentity = $this->getRequestParam('openid_identity');
             $ptn = "/[^https|^http]?:\/\/steamcommunity\.com\/openid\/id\/(7[0-9]{15,25}+)$/";
             if (preg_match($ptn, $openIdIdentity, $matches)) {
                 $this->setOpenId($matches[1]);
@@ -108,6 +111,31 @@ class Steam implements OAuthInterface {
         }
 
         return $this->getOpenId();
+    }
+
+    /**
+     * 验证请求正确性
+     * @return bool
+     */
+    public function validate(): bool {
+        $params = [
+            'openid.assoc_handle' => $this->getRequestParam('openid_assoc_handle'),
+            'openid.signed' => $this->getRequestParam('openid_signed'),
+            'openid.sig' => $this->getRequestParam('openid_sig'),
+            'openid.ns' => $this->getRequestParam('openid_ns'),
+            'openid.op_endpoint' => $this->getRequestParam('openid_op_endpoint'),
+            'openid.claimed_id' => $this->getRequestParam('openid_claimed_id'),
+            'openid.identity' => $this->getRequestParam('openid_identity'),
+            'openid.return_to' => $this->getRequestParam('openid_return_to'),
+            'openid.response_nonce' => $this->getRequestParam('openid_response_nonce'),
+            'openid.mode' => 'check_authentication'
+        ];
+
+        $client = new Client;
+        $response = $client->request('POST', $this->validateUri, ['form_params' => $params]);
+        $contents = $response->getBody()->getContents();
+
+        return boolval(preg_match('/is_valid\s*:\s*true/i', $contents));
     }
 
     public function getUserInfoParams(): array {
@@ -126,7 +154,11 @@ class Steam implements OAuthInterface {
     }
 
     public function generateUserInfo(string $response): UserInfo {
-        return SteamUserInfo::decode(json_decode($response, true));
+        if ($this->getRequestParam('openid_mode') === 'id_res' && $this->validate()) {
+            return SteamUserInfo::decode(json_decode($response, true));
+        } else {
+            return new SteamUserInfo;
+        }
     }
 
     public function getOpenId(): string {
@@ -154,5 +186,18 @@ class Steam implements OAuthInterface {
         return '';
     }
 
+    /**
+     * 获取steam回调回来之后携带的参数
+     * @param string $key
+     * @return string
+     */
+    public function getRequestParam(string $key): string {
+        $params = ($_SERVER['REQUEST_METHOD'] === 'POST') ? $_POST : $_GET;
+        if (array_key_exists($key, $params)) {
+            return $params[$key];
+        }
+
+        return '';
+    }
 
 }
