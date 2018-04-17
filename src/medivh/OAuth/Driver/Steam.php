@@ -157,6 +157,9 @@ class Steam implements OAuthInterface {
         if ($this->getRequestParam('openid_mode') === 'id_res' && $this->validate()) {
             return SteamUserInfo::decode(json_decode($response, true));
         } else {
+            if ( $this->getOpenId() !== '' )
+                return SteamUserInfo::decode(json_decode($response, true));
+
             return new SteamUserInfo;
         }
     }
