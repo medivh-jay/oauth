@@ -17,7 +17,10 @@ class SteamUserInfo extends UserInfo {
      * @return UserInfoInterface
      */
     public static function decode(array $data): UserInfoInterface {
-        $data = array_key_exists('response', $data) ? array_pop($data['response']['players']) : [];
+        $players = array_key_exists('response', $data) ? $data['response'] : [];
+        $player = array_pop($players['players']);
+
+        $data = is_array($player) ? $player : [];
 
         $user = new SteamUserInfo;
         $user->openId = array_key_exists('steamid', $data) ? $data['steamid'] : '';
